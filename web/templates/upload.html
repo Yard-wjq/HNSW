@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片相似查询 | 上传</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --dark: #1b263b;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #4cc9f0;
+            --error: #f72585;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-weight: 300;
+        }
+
+        .upload-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary-light);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area.active {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .upload-area.error {
+            border-color: var(--error);
+            background-color: rgba(247, 37, 133, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary-light);
+            margin-bottom: 1rem;
+        }
+
+        .upload-area.error i {
+            color: var(--error);
+        }
+
+        .upload-area h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .upload-area p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        #file {
+            display: none;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .preview-container {
+            margin-top: 2rem;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .file-info {
+            background-color: var(--light);
+            padding: 0.8rem;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .file-info i {
+            margin-right: 0.5rem;
+            color: var(--primary);
+        }
+
+        .error-message {
+            color: var(--error);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .upload-card {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>图片相似查询</h1>
+            <p class="subtitle">上传图片，发现相似的视觉内容</p>
+        </header>
+
+        <form method="post" enctype="multipart/form-data" class="upload-card">
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>点击或拖拽上传图片</h3>
+                <p>支持 JPG, PNG 格式，最大5MB</p>
+                <input type="file" name="file" id="file" accept="image/jpeg, image/png" required>
+                <div class="error-message" id="errorMessage">请上传有效的图片文件 (JPG, PNG)</div>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn" disabled>
+                <i class="fas fa-search"></i> 查询相似图片
+            </button>
+
+            <div class="preview-container" id="previewContainer">
+                <img id="preview-image">
+                <br>
+                <div class="file-info">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="file-name">已选择文件</span>
+                </div>
+            </div>
+        </form>
+
+        <footer>
+            <p>© 2025 基于HNSW搜索算法的相似卡通头像检索系统</p>
+        </footer>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file');
+        const uploadArea = document.getElementById('uploadArea');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('preview-image');
+        const fileName = document.getElementById('file-name');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // 点击上传区域触发文件选择
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // 文件选择处理
+        fileInput.addEventListener('change', function(e) {
+            handleFileSelection(e.target.files[0]);
+        });
+
+        // 拖拽上传功能
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('active');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('active');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('active');
+
+            if (e.dataTransfer.files.length) {
+                handleFileSelection(e.dataTransfer.files[0]);
+            }
+        });
+
+        // 处理文件选择
+        function handleFileSelection(file) {
+            // 重置状态
+            uploadArea.classList.remove('error');
+            errorMessage.style.display = 'none';
+
+            if (!file) {
+                resetFileInput();
+                return;
+            }
+
+            // 验证文件类型
+            const validTypes = ['image/jpeg', 'image/png'];
+            if (!validTypes.includes(file.type)) {
+                showError();
+                return;
+            }
+
+            // 验证文件大小 (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                errorMessage.textContent = '文件大小不能超过5MB';
+                showError();
+                return;
+            }
+
+            // 显示预览
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewContainer.style.display = 'block';
+                fileName.textContent = file.name;
+                submitBtn.disabled = false;
+            }
+
+            reader.onerror = function() {
+                showError();
+            }
+
+            reader.readAsDataURL(file);
+        }
+
+        // 显示错误状态
+        function showError() {
+            uploadArea.classList.add('error');
+            errorMessage.style.display = 'block';
+            previewContainer.style.display = 'none';
+            submitBtn.disabled = true;
+        }
+
+        // 重置文件输入
+        function resetFileInput() {
+            fileInput.value = '';
+            previewContainer.style.display = 'none';
+            submitBtn.disabled = true;
+            uploadArea.classList.remove('error');
+            errorMessage.style.display = 'none';
+        }
+
+        // 表单提交前的验证
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (submitBtn.disabled) {
+                e.preventDefault();
+                showError();
+            }
+        });
+    </script>
+</body>
+</html>
